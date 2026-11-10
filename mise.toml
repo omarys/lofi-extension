@@ -1,0 +1,70 @@
+# Lofi Stream — dev, build and run entry points.
+#
+# Mirrors the pomodoro repo: `mise tasks` lists them, `mise run <task>` runs one.
+#
+#   build: glib-compile-schemas, gnome-extensions
+#   test:  gjs (the D-Bus test needs a session bus to do its round trip)
+#   run:   mpv, yt-dlp
+
+[tools]
+node = "26"
+pre-commit = "latest"
+
+[vars]
+uuid = "lofi@omary.local"
+schema = "org.gnome.shell.extensions.lofi"
+
+[tasks.schemas]
+description = "Compile the GSettings schema"
+run = "glib-compile-schemas schemas"
+
+[tasks."check:syntax"]
+description = "Syntax-check every JavaScript source file"
+run = '''
+for f in extension.js prefs.js lib/*.js tests/*.js; do
+  node --check "$f" || exit 1
+done
+'''
+
+[tasks.test]
+description = "Run the unit and D-Bus tests"
+run = "gjs -m tests/service-dbus.js"
+
+[tasks.check]
+description = "Schema, syntax and tests — no display needed"
+depends = ["schemas", "check:syntax", "test"]
+
+[tasks.deps]
+description = "Report any missing system dependencies"
+run = '''
+status=0
+for t in glib-compile-schemas gjs node gnome-extensions mpv yt-dlp; do
+  if command -v "$t" >/dev/null 2>&1; then
+    printf '  ok       %s\n' "$t"
+  else
+    printf '  MISSING  %s\n' "$t"
+    status=1
+  fi
+done
+exit $status
+'''
+
+[tasks.install]
+description = "Install the extension into the user extension directory"
+depends = ["check"]
+run = '''
+dest="$HOME/.local/share/gnome-shell/extensions/{{ vars.uuid }}"
+rm -rf "$dest"
+mkdir -p "$dest"
+cp -r metadata.json extension.js prefs.js lib schemas "$dest"
+'''
+
+[tasks.pack]
+description = "Build a zip that can be shared or uploaded"
+depends = ["check"]
+run = '''
+gnome-extensions pack --force \
+  --extra-source=lib --extra-source=tests \
+  --schema=schemas/{{ vars.schema }}.gschema.xml \
+  --out-dir=dist
+'''

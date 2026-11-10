@@ -1,0 +1,9 @@
+{
+  "uuid": "lofi@omary.local",
+  "name": "Lofi Stream",
+  "description": "One-click lofi stream in the panel, played through mpv, with a D-Bus API other extensions can drive.",
+  "settings-schema": "org.gnome.shell.extensions.lofi",
+  "shell-version": ["45", "46", "47", "48", "49", "50", "51"],
+  "url": "https://github.com/omary/lofi-extension",
+  "version": 1
+}

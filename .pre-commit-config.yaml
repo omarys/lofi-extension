@@ -1,0 +1,28 @@
+# Git hooks for the extension. Install once with `pre-commit install`.
+#
+# The project checks are NOT duplicated here — they live in mise.toml and are
+# invoked through `mise run`, so `mise run check` and this hook can never drift
+# apart. Requires mise on PATH; it is already managing this repo's toolchain.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-json
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: detect-private-key
+
+  - repo: local
+    hooks:
+      - id: mise-check
+        name: mise run check
+        description: Schema, syntax and service tests (no network, no mpv)
+        entry: mise run check
+        language: system
+        pass_filenames: false
+        always_run: true

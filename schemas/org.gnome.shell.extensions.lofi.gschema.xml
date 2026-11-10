@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+
+  <schema id="org.gnome.shell.extensions.lofi"
+          path="/org/gnome/shell/extensions/lofi/">
+
+    <key name="stream-url" type="s">
+      <default>'https://www.youtube.com/watch?v=1-LpQekNa9g'</default>
+      <summary>Stream URL handed to mpv</summary>
+    </key>
+
+    <key name="volume" type="i">
+      <default>40</default>
+      <range min="0" max="100"/>
+      <summary>mpv volume for the stream</summary>
+    </key>
+
+  </schema>
+
+</schemalist>
