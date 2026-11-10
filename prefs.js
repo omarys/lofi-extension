@@ -1,7 +1,10 @@
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 
-import {ExtensionPreferences} from 'resource:///org/gnome/shell/extensions/prefs.js';
+// The prefs base class lives in the Extensions app's resource bundle, not the
+// shell's: capital "Shell" and an extra js/ segment. Note the asymmetry with
+// extension.js, which does live at resource:///org/gnome/shell/extensions/.
+import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 export default class LofiPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
