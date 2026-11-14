@@ -11,7 +11,7 @@ node = "26"
 pre-commit = "latest"
 
 [vars]
-uuid = "lofi@omary.local"
+uuid = "lofi@omary.github.io"
 schema = "org.gnome.shell.extensions.lofi"
 
 [tasks.schemas]
@@ -63,8 +63,9 @@ cp -r metadata.json extension.js prefs.js lib schemas "$dest"
 description = "Build a zip that can be shared or uploaded"
 depends = ["check"]
 run = '''
+mkdir -p dist
 gnome-extensions pack --force \
-  --extra-source=lib --extra-source=tests \
+  --extra-source=lib --extra-source=LICENSE \
   --schema=schemas/{{ vars.schema }}.gschema.xml \
   --out-dir=dist
 '''

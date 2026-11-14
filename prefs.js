@@ -1,4 +1,5 @@
 import Adw from 'gi://Adw';
+import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
 
 // The prefs base class lives in the Extensions app's resource bundle, not the
@@ -27,17 +28,16 @@ export default class LofiPreferences extends ExtensionPreferences {
         const url = new Adw.EntryRow({
             title: 'Stream URL',
             text: settings.get_string('stream-url'),
+            show_apply_button: true,
         });
-        url.connect('changed', () => settings.set_string('stream-url', url.text));
+        url.connect('apply', () => settings.set_string('stream-url', url.text));
         group.add(url);
 
         const volume = new Adw.SpinRow({
             title: 'Volume',
             adjustment: new Gtk.Adjustment({lower: 0, upper: 100, step_increment: 5}),
-            value: settings.get_int('volume'),
         });
-        volume.connect('notify::value', () =>
-            settings.set_int('volume', Math.round(volume.value)));
+        settings.bind('volume', volume, 'value', Gio.SettingsBindFlags.DEFAULT);
         group.add(volume);
     }
 }

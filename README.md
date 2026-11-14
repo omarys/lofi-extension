@@ -9,7 +9,7 @@ and stops focus phases, and disabling either extension cannot orphan the other.
 
 ## Requirements
 
-- GNOME Shell 45–51
+- GNOME Shell 51
 - `mpv` and `yt-dlp` — mpv uses yt-dlp to resolve YouTube URLs
 - [mise](https://mise.jdx.dev) for the dev toolchain (`node`, `pre-commit`)
 - `gjs` and `glib-compile-schemas` to build and test
@@ -21,7 +21,7 @@ and stops focus phases, and disabling either extension cannot orphan the other.
 ```sh
 mise trust            # once, so mise may run this repo's tasks
 mise run install
-gnome-extensions enable lofi@omary.local
+gnome-extensions enable lofi@omary.github.io
 ```
 
 Shell only notices a newly installed extension in a fresh session, so log out

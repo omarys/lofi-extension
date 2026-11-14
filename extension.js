@@ -93,7 +93,7 @@ const LofiIndicator = GObject.registerClass(
 
             this._aboutItem = new PopupMenu.PopupSubMenuMenuItem('About');
             for (const text of [NAME, `Version ${VERSION}`,
-                'Lofi in the panel, played through mpv. No license.']) {
+                'Lofi in the panel, played through mpv. GPL-3.0-or-later.']) {
                 this._aboutItem.menu.addMenuItem(
                     new PopupMenu.PopupMenuItem(text, {reactive: false}));
             }
@@ -120,16 +120,20 @@ const LofiIndicator = GObject.registerClass(
         }
 
         _sync() {
-            const playing = this._music.playing;
+            const state = this._music.state;
             this._syncing = true;
-            this._musicItem.setToggleState(playing);
+            this._musicItem.setToggleState(state === 'playing');
             this._syncing = false;
-            this._icon.icon_name = playing
-                ? 'media-playback-stop-symbolic'
-                : 'media-playback-start-symbolic';
-            this.accessible_name = playing
-                ? `${NAME} — playing`
-                : `${NAME} — stopped`;
+            if (state === 'playing') {
+                this._icon.icon_name = 'media-playback-stop-symbolic';
+                this.accessible_name = `${NAME} — playing`;
+            } else if (state === 'paused') {
+                this._icon.icon_name = 'media-playback-pause-symbolic';
+                this.accessible_name = `${NAME} — paused`;
+            } else {
+                this._icon.icon_name = 'media-playback-start-symbolic';
+                this.accessible_name = `${NAME} — stopped`;
+            }
         }
 
         destroy() {
@@ -138,6 +142,8 @@ const LofiIndicator = GObject.registerClass(
             this._music.onChange = null;
             this._aboutItem = null;
             this._musicItem = null;
+            this._extension = null;
+            this._settings = null;
             super.destroy();
         }
     });
@@ -154,13 +160,21 @@ export default class LofiExtension extends Extension {
         // The timer drives the same mpv over D-Bus, so the icon has to follow
         // changes it did not cause itself.
         this._music.onChange = () => this._indicator?._sync();
+        this._music.onError = message => Main.notify(NAME, message);
+        this._volumeChangedId = this._settings.connect('changed::volume', () =>
+            this._music.setVolume(this._settings.get_int('volume')));
     }
 
     disable() {
+        if (this._volumeChangedId) {
+            this._settings?.disconnect(this._volumeChangedId);
+            this._volumeChangedId = 0;
+        }
         this._indicator?.destroy();
         this._indicator = null;
         this._service.unown();
         this._service = null;
+        this._music.onError = null;
         this._music.stop();
         this._music = null;
         this._settings = null;
