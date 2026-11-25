@@ -3,8 +3,9 @@ schemas/gschemas.compiled
 *.shell-extension.zip
 dist/
 
-# Node
+# Node / Python
 node_modules/
+.venv/
 
 # openlore analysis artifacts
 .openlore/

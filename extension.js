@@ -57,6 +57,22 @@ const LofiIndicator = GObject.registerClass(
                     return Clutter.EVENT_PROPAGATE;
                 }
             });
+
+            this.connect('scroll-event', (_actor, event) => {
+                const dir = event.get_scroll_direction();
+                let delta = 0;
+                if (dir === Clutter.ScrollDirection.UP)
+                    delta = 5;
+                else if (dir === Clutter.ScrollDirection.DOWN)
+                    delta = -5;
+                else
+                    return Clutter.EVENT_PROPAGATE;
+
+                const next = Math.max(0, Math.min(100,
+                    this._settings.get_int('volume') + delta));
+                this._settings.set_int('volume', next);
+                return Clutter.EVENT_STOP;
+            });
         }
 
         /* ------------------------------------------------------------- menu */
@@ -163,12 +179,23 @@ export default class LofiExtension extends Extension {
         this._music.onError = message => Main.notify(NAME, message);
         this._volumeChangedId = this._settings.connect('changed::volume', () =>
             this._music.setVolume(this._settings.get_int('volume')));
+        this._urlChangedId = this._settings.connect('changed::stream-url', () => {
+            if (!this._music.playing)
+                return;
+            const url = this._settings.get_string('stream-url').trim();
+            this._music.play(url === '' ? undefined : url,
+                this._settings.get_int('volume'));
+        });
     }
 
     disable() {
         if (this._volumeChangedId) {
             this._settings?.disconnect(this._volumeChangedId);
             this._volumeChangedId = 0;
+        }
+        if (this._urlChangedId) {
+            this._settings?.disconnect(this._urlChangedId);
+            this._urlChangedId = 0;
         }
         this._indicator?.destroy();
         this._indicator = null;
