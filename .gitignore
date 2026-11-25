@@ -9,3 +9,4 @@ node_modules/
 # openlore analysis artifacts
 .openlore/
 .unipi/
+.venv/
